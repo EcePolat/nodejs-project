@@ -7,7 +7,9 @@ const Response = require("../lib/Response");
 const CustomError = require('../lib/Error');
 const Enum = require('../config/Enum');
 const role_privileges = require("../config/role_privileges");
+const config = require('../config');
 const auth = require("../lib/auth")();
+const i18n = new (require("../lib/i18n"))(config.DEFAULT_LANG);
 
 router.all("*", auth.authenticate(), (req,res,next) => {
     next();
@@ -29,9 +31,9 @@ router.post("/add", auth.checkRoles("role_add"), async (req, res) => {
   let body = req.body;
   try{
 
-    if(!body.role_name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "role name field must be filled.");
+    if(!body.role_name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, i18n.translate("COMMON.VALIDATION_ERROR_TITLE", req.user.language), i18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user.language, ["role_name"]));
     if(!body.permissions || !Array.isArray(body.permissions) || body.permissions.length == 0){
-        throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "permissions field must be an Array.");
+        throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, i18n.translate("COMMON.VALIDATION_ERROR_TITLE", req.user.language), i18n.translate("COMMON.FIELD_MUST_BE_TYPE", req.user.language, ["permission", "array"]));
     }
 
     let role = new Roles({
@@ -66,7 +68,7 @@ router.post("/update", /*auth.checkRoles("role_update"),*/ async (req, res) =>{
 
   try{
 
-    if(!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "id field must be filled.");
+    if(!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, i18n.translate("COMMON.VALIDATION_ERROR_TITLE", req.user.language), i18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user.language, ["_id"]));
 
     let updates = {};
 
@@ -114,7 +116,7 @@ router.post("/delete", auth.checkRoles("role_delete"), async (req, res) => {
 
   try{
 
-    if(!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "Id field must be fileld.");
+    if(!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, i18n.translate("COMMON.VALIDATION_ERROR_TITLE", req.user.language), i18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user.language, ["_id"]));
 
     await Roles.deleteOne({_id: body._id});
 
